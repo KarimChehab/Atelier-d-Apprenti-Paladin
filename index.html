@@ -2,17 +2,48 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>L'Atelier de l'Apprenti - L1</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=IM+Fell+English&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=IM+Fell+English&family=Lora&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --btn-grimoire-x: 5vw;      --btn-grimoire-y: 65vh;
+            --btn-exercices-x: 2vw;   --btn-exercices-y: 15vh;
+            --btn-codex-x: 20vw;        --btn-codex-y: 10vh;
+            --btn-travaux-x: -15vw;     --btn-travaux-y: 10vh;
+            --btn-lexique-x: -5vw;    --btn-lexique-y: -10vh;
+            
+            --syringe-size: 40vw;
+            --stetho-size: 40vw;
+            --codex-element-size: 40vw;
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --btn-grimoire-x: 14vw;      --btn-grimoire-y: 55vh;
+                --btn-exercices-x: 9vw;      --btn-exercices-y: 15vh;
+                --btn-codex-x: -35vw;        --btn-codex-y: -5vh;
+                --btn-travaux-x: -30vw;      --btn-travaux-y: 23vh;
+                --btn-lexique-x: -19vw;      --btn-lexique-y: -4vh;
+
+                --syringe-size: 50vw;
+                --stetho-size: 50vw;
+                --codex-element-size: 50vw;
+            }
+
+            .interactive-btn {
+                width: 30vw;
+                height: 30vw;
+                max-width: 100px;
+                max-height: 100px;
+            }
+        }
+
         body {
-            font-family: 'IM Fell English', serif;
+            font-family: 'Lora', serif;
             background-color: #000;
             overflow: hidden;
         }
@@ -20,205 +51,253 @@
         h1, h2, h3, h4 {
             font-family: 'Cinzel Decorative', cursive;
         }
+        
+        .parchment-content h2, .parchment-content h4,
+        .book-page h2, .book-page h3, .book-page h4 {
+            text-align: center;
+        }
+
+        #parchment-title {
+            margin-top: 20px;
+        }
+
+        .subtitle-font {
+            font-family: 'IM Fell English', serif;
+        }
 
         #bg-video {
             position: fixed; top: 50%; left: 50%;
             min-width: 100%; min-height: 100%;
             transform: translateX(-50%) translateY(-50%);
-            object-fit: cover; z-index: 10;
+            object-fit: cover;
+            z-index: 10;
         }
 
         #apothecary-container {
             position: fixed; top: 0; left: 0;
             width: 100%; height: 100vh; z-index: 20;
+            pointer-events: none;
         }
         
-        #welcome-container {
+        #welcome-container, #vocation-container, #parchment-modal, #book-container {
             position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%; z-index: 30;
+            width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
             opacity: 0; pointer-events: none;
             transition: opacity 1s ease-in-out;
-            transform: scale(0.9);
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            box-sizing: border-box;
         }
-        
-        #welcome-container.visible {
-            opacity: 1; pointer-events: auto; transform: scale(1);
+
+        #welcome-container { z-index: 30; transform: scale(0.9); }
+        #vocation-container { z-index: 35; transform: scale(0.9); }
+        #parchment-modal { z-index: 50; background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); }
+        #book-container { z-index: 60; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(5px); }
+
+        #vocation-container .parchment-content p {
+            text-align: justify;
+        }
+        #vocation-container .parchment-content h1,
+        #vocation-container .parchment-content h2,
+        #vocation-container .parchment-content h3,
+        #vocation-container .parchment-content h4 {
+            text-align: center !important;
+        }
+
+        #vocation-container .parchment-content > button,
+        #vocation-container .parchment-content button {
+            display: block;
+            margin: 1.5rem auto 0;
+            text-align: center;
+        }
+
+        #welcome-container.visible, 
+        #vocation-container.visible,
+        #parchment-modal.visible, 
+        #book-container.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #welcome-container.visible,
+        #vocation-container.visible {
+            transform: scale(1);
             transition: opacity 1s ease-in-out, transform 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .buttons-wrapper {
-            opacity: 0; pointer-events: none;
+            opacity: 0;
             transition: opacity 1.5s ease-in-out;
+            pointer-events: none;
         }
         .buttons-wrapper.visible {
-             opacity: 1; pointer-events: auto;
+            opacity: 1;
+            pointer-events: auto;
         }
         
         .interactive-btn {
-            position: absolute; width: 80px; height: 80px; border-radius: 50%;
-            background-color: rgba(255, 223, 186, 0.2);
-            border: 2px solid rgba(255, 223, 186, 0.4);
+            position: absolute; top: 50%; left: 50%;
+            width: 80px; height: 80px; border-radius: 50%;
+            background-color: rgba(255, 190, 100, 0.3);
+            border: 2px solid rgba(255, 190, 100, 0.6);
             cursor: pointer; transition: all 0.3s ease;
             animation: pulse-glow 3s infinite ease-in-out;
+            display: flex; align-items: center; justify-content: center; text-align: center;
+            position: relative; 
         }
-
         .interactive-btn:hover {
-            background-color: rgba(255, 223, 186, 0.4); transform: scale(1.1);
+            background-color: rgba(255, 190, 100, 0.5);
+            transform: translate(var(--x-pos), var(--y-pos)) scale(1.1);
         }
+        #btn-grimoire, #btn-travaux { background-color: rgba(50, 50, 50, 0.4); border: 2px solid rgba(150, 150, 150, 0.6); animation-name: pulse-glow-black; }
+        #btn-grimoire:hover, #btn-travaux:hover { background-color: rgba(80, 80, 80, 0.6); }
 
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 10px 0px rgba(255, 223, 186, 0.3); }
-            50% { box-shadow: 0 0 25px 10px rgba(255, 223, 186, 0.5); }
-            100% { box-shadow: 0 0 10px 0px rgba(255, 223, 186, 0.3); }
-        }
-
-        #parchment-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px);
-            z-index: 50; display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
-        }
-
-        #parchment-modal.visible { opacity: 1; pointer-events: auto; }
-
-        .parchment-content {
-            background-color: #FDF3D9; color: #4A2E1A; padding: 40px 50px;
-            border-radius: 5px; max-width: 600px; width: 90%;
-            border: 15px solid #D2B48C;
-            border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath d='M0 0 H60 V60 H0 Z' fill='%23D2B48C'/%3E%3Cpath d='M5 5 H55 V55 H5 Z' fill='%23FDF3D9'/%3E%3C/svg%3E") 15 round;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative;
-            max-height: 80vh; overflow-y: auto;
-        }
-        .parchment-content a { color: #8c5a2b; text-decoration: underline; }
-
-        .close-btn {
-            position: absolute; top: -15px; right: -15px; background: #4A2E1A; color: #FDF3D9;
-            width: 40px; height: 40px; border-radius: 50%; border: 3px solid #FDF3D9;
-            font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
-
-        #book-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 60; display: flex; align-items: center; justify-content: center;
-            background-color: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
-            opacity: 0; pointer-events: none; transition: opacity 0.5s ease-in-out;
-        }
-        #book-container.visible { opacity: 1; pointer-events: auto; }
-
-        #book {
-            width: 90vw; height: 70vh; max-width: 1200px; max-height: 800px;
-            background: #3a291c;
-            background-image: linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1) 75%, transparent 75%, transparent), 
-                              linear-gradient(-45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1) 75%, transparent 75%, transparent);
-            background-size: 40px 40px;
-            border: 10px solid #2b1e15; 
-            border-radius: 8px; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.7), inset 0 0 25px rgba(0,0,0,0.6);
-            display: flex;
-            position: relative;
-            padding: 20px;
-            transform: scale(0.8); 
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            perspective: 2500px;
-        }
-        #book-container.visible #book { transform: scale(1); }
-
-        #book::before {
-            content: ''; position: absolute; left: 50%; top: 20px; bottom: 20px;
-            width: 60px; transform: translateX(-50%);
-            background-image: linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(255,255,255,0.1) 50%, rgba(0,0,0,0.6) 100%);
-            border-radius: 4px; box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
-
-        .book-page {
-            width: 50%; height: 100%;
-            background: #fdf5e5;
-            background-image: linear-gradient(90deg, rgba(220, 210, 190, 0.3) 0%, rgba(255, 255, 255, 0) 15%),
-                              linear-gradient(to bottom, rgba(0,0,0,0.03) 0%, transparent 5%, transparent 95%, rgba(0,0,0,0.03) 100%);
-            padding: 2.5rem 3rem;
-            overflow-y: auto; 
-            color: #5c4b3a;
-        }
+        #btn-grimoire { --x-pos: var(--btn-grimoire-x); --y-pos: var(--btn-grimoire-y); transform: translate(var(--x-pos), var(--y-pos)); }
+        #btn-exercices { --x-pos: var(--btn-exercices-x); --y-pos: var(--btn-exercices-y); transform: translate(var(--x-pos), var(--y-pos)); }
+        #btn-codex { --x-pos: var(--btn-codex-x); --y-pos: var(--btn-codex-y); transform: translate(var(--x-pos), var(--y-pos)); }
+        #btn-travaux { --x-pos: var(--btn-travaux-x); --y-pos: var(--btn-travaux-y); transform: translate(var(--x-pos), var(--y-pos)); }
+        #btn-lexique { --x-pos: var(--btn-lexique-x); --y-pos: var(--btn-lexique-y); transform: translate(var(--x-pos), var(--y-pos)); }
         
-        #left-page { 
-            border-radius: 6px 0 0 6px;
-            box-shadow: inset -8px 0 15px -8px rgba(0,0,0,0.5);
-        }
-        #right-page {
-            border-radius: 0 6px 6px 0;
-            box-shadow: inset 8px 0 15px -8px rgba(0,0,0,0.5);
-        }
-        
-        #book-nav {
-            position: absolute; bottom: 20px; left: 50%;
-            transform: translateX(-50%);
-            width: calc(100% - 100px);
-            display: flex; justify-content: space-between;
+        .btn-title { font-family: 'Cinzel Decorative', cursive; font-size: 11px; line-height: 1.2; color: white; text-shadow: 0 0 4px #fff, 0 0 8px #fff, 0 0 12px #ffefc2; pointer-events: none; animation: fade-glow-text 3s infinite ease-in-out; }
+        @keyframes pulse-glow { 0% { box-shadow: 0 0 10px 0px rgba(255, 190, 100, 0.4); } 50% { box-shadow: 0 0 25px 10px rgba(255, 190, 100, 0.6); } 100% { box-shadow: 0 0 10px 0px rgba(255, 190, 100, 0.4); } }
+        @keyframes pulse-glow-black { 0% { box-shadow: 0 0 10px 0px rgba(200, 200, 200, 0.4); } 50% { box-shadow: 0 0 25px 10px rgba(255, 255, 255, 0.5); } 100% { box-shadow: 0 0 10px 0px rgba(200, 200, 200, 0.4); } }
+        @keyframes fade-glow-text { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+
+        .floating-element {
+            position: absolute;
+            top: 50%; left: 50%;
+            height: auto;
+            opacity: 0;
             pointer-events: none;
+            z-index: -1;
+            transform: translate(-50%, -50%);
         }
-        .book-nav-btn {
-            background-color: transparent;
-            color: #4A2E1A; border: none; padding: 10px 20px;
-            cursor: pointer; font-size: 3rem;
-            transition: transform 0.2s ease;
-            font-family: serif; pointer-events: auto;
-            text-shadow: 0 0 5px rgba(253, 245, 229, 0.7);
+        .buttons-wrapper.visible .floating-element {
+            animation: float-appear 1.5s ease-out forwards, float-gently 4s ease-in-out 1.5s infinite;
         }
-        .book-nav-btn:hover:not(:disabled) { transform: scale(1.2); }
-        .book-nav-btn:disabled { opacity: 0.2; cursor: not-allowed; }
-
-        #close-book-btn {
-            position: absolute; top: -10px; right: -10px; background: #4A2E1A; color: #FDF3D9;
-            width: 40px; height: 40px; border-radius: 50%; border: 3px solid #FDF3D9;
-            font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 70;
-        }
-
-        .page-content-wrapper { transition: opacity 0.3s ease-in-out; }
-        .page-content-wrapper.flipping { opacity: 0; }
         
-        .book-page::-webkit-scrollbar,
-        .parchment-content::-webkit-scrollbar { width: 12px; }
-        .book-page::-webkit-scrollbar-track,
-        .parchment-content::-webkit-scrollbar-track { background: #e4d8c5; border-radius: 10px; }
-        .book-page::-webkit-scrollbar-thumb,
-        .parchment-content::-webkit-scrollbar-thumb {
-            background-color: #5c4b3a; border-radius: 10px;
+        #syringe { width: var(--syringe-size); }
+        #stetho { width: var(--stetho-size); }
+        #codex-element { width: var(--codex-element-size); }
+        
+        @keyframes float-appear {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); filter: drop-shadow(0 0 0px white); }
+            50% { filter: drop-shadow(0 0 15px white) drop-shadow(0 0 25px #ffefc2); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5)); }
+        }
+        @keyframes float-gently {
+            0%, 100% { transform: translate(-50%, -50%) rotate(-1.5deg); }
+            50% { transform: translate(-50%, calc(-50% - 20px)) rotate(1.5deg); }
+        }
+
+        .parchment-content { background-color: #FDF3D9; color: #4A2E1A; padding: 40px 60px; border-radius: 5px; max-width: 600px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; max-height: 90vh; overflow-y: auto; border: 15px solid #D2B48C; border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath d='M0 0 H60 V60 H0 Z' fill='%23D2B48C'/%3E%3Cpath d='M5 5 H55 V55 H5 Z' fill='%23FDF3D9'/%3E%3C/svg%3E") 15 round; text-align: justify; hyphens: auto; }
+        .parchment-content a { color: #8c5a2b; text-decoration: underline; }
+        .close-btn { position: absolute; top: 10px; right: 10px; background: #4A2E1A; color: #FDF3D9; width: 40px; height: 40px; border-radius: 50%; border: 3px solid #D2B48C; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
+        
+        .parchment-content p,
+        .book-page p {
+            margin-bottom: 1rem;
+            line-height: 1.65;
+        }
+        .parchment-content ul,
+        .parchment-content ol,
+        .book-page ul,
+        .book-page ol {
+            margin-top: 0.75rem;
+            margin-bottom: 1rem;
+            padding-left: 1.15rem;
+        }
+        .parchment-content li,
+        .book-page li {
+            margin-bottom: 0.5rem;
+        }
+        .parchment-content li + li,
+        .book-page li + li {
+            margin-top: 0.35rem;
+        }
+        .parchment-content h1, .parchment-content h2, .parchment-content h3, .parchment-content h4,
+        .book-page h1, .book-page h2, .book-page h3, .book-page h4 {
+            margin-top: 0.85rem;
+            margin-bottom: 0.6rem;
+        }
+
+        #book { width: 90vw; height: 70vh; max-width: 1200px; max-height: 800px; background: #3a291c; background-image: linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1) 75%, transparent 75%, transparent), linear-gradient(-45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1) 75%, transparent 75%, transparent); background-size: 40px 40px; border-radius: 8px; box-shadow: 0 20px 50px rgba(0,0,0,0.7), inset 0 0 25px rgba(0,0,0,0.6); display: flex; position: relative; padding: 20px; transform: scale(0.8); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); perspective: 2500px; border: 10px solid #2b1e15; }
+        #book-container.visible #book { transform: scale(1); }
+        #book::before { content: ''; position: absolute; left: 50%; top: 20px; bottom: 20px; width: 60px; transform: translateX(-50%); background-image: linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(255,255,255,0.1) 50%, rgba(0,0,0,0.6) 100%); border-radius: 4px; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        .book-page { width: 50%; height: 100%; background: #fdf5e5; background-image: linear-gradient(90deg, rgba(220, 210, 190, 0.3) 0%, rgba(255, 255, 255, 0) 15%), linear-gradient(to bottom, rgba(0,0,0,0.03) 0%, transparent 5%, transparent 95%, rgba(0,0,0,0.03) 100%); padding: 2.5rem 3.5rem; overflow-y: auto; color: #5c4b3a; text-align: justify; hyphens: auto; }
+        #left-page { border-radius: 6px 0 0 6px; box-shadow: inset -8px 0 15px -8px rgba(0,0,0,0.5); }
+        #right-page { border-radius: 0 6px 6px 0; box-shadow: inset 8px 0 15px -8px rgba(0,0,0,0.5); }
+        #book-nav { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 100px); display: flex; justify-content: space-between; pointer-events: none; }
+        .book-nav-btn { background-color: transparent; color: #4A2E1A; border: none; padding: 10px 20px; cursor: pointer; font-size: 3rem; transition: transform 0.2s ease; font-family: serif; pointer-events: auto; text-shadow: 0 0 5px rgba(253, 245, 229, 0.7); }
+        .book-nav-btn:hover:not(:disabled) { transform: scale(1.2); } .book-nav-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+        #close-book-btn { position: fixed; top: calc(15px + env(safe-area-inset-top)); right: calc(15px + env(safe-area-inset-right)); background: #4A2E1A; color: #FDF3D9; width: 40px; height: 40px; border-radius: 50%; border: 3px solid #FDF3D9; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 70; }
+        
+        .parchment-content, .book-page {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .parchment-content::-webkit-scrollbar, .book-page::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+        body.show-scrollbars .parchment-content,
+        body.show-scrollbars .book-page {
+            scrollbar-width: thin;
+        }
+        body.show-scrollbars .parchment-content::-webkit-scrollbar,
+        body.show-scrollbars .book-page::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+        body.show-scrollbars .parchment-content::-webkit-scrollbar-thumb,
+        body.show-scrollbars .book-page::-webkit-scrollbar-thumb {
+            background-color: #5c4b3a;
+            border-radius: 10px;
             border: 3px solid #e4d8c5;
         }
 
+        @media (max-width: 768px) {
+            .parchment-content { padding: 40px 10px; }
+            #book { width: 100%; height: 100%; border-radius: 0; padding: 60px 10px 20px; box-sizing: border-box; flex-direction: column; overflow-y: auto; justify-content: flex-start; }
+            #book::before { display: none; }
+            .book-page { width: 100%; height: auto; overflow-y: visible; box-shadow: none !important; padding: 1.5rem 10px; }
+            #left-page { border-bottom: 2px dashed rgba(92, 75, 58, 0.5); margin-bottom: 1.5rem; padding-bottom: 1.5rem; }
+            #book-nav { position: relative; bottom: auto; left: auto; transform: none; width: 100%; padding-top: 20px; }
+        }
     </style>
 </head>
 <body>
+    
+    <audio id="bg-music" loop>
+        <source src="music/ambiance.mp3" type="audio/mpeg">
+    </audio>
+    <button id="music-control">▶️</button>
 
-    <video id="bg-video" muted playsinline autoplay>
+    <video id="bg-video" muted playsinline>
         <source src="videos/video1.mp4" type="video/mp4">
         Ton navigateur ne supporte pas la balise vidéo.
     </video>
 
     <div id="apothecary-container">
-        <!-- Boutons Desktop (4 boutons) -->
-        <div id="desktop-buttons-wrapper" class="buttons-wrapper hidden md:block">
-            <div data-action="open-grimoire" class="interactive-btn" style="top: 72%; left: 48%;"></div>
-            <div data-action="open-parchment" class="interactive-btn" style="top: 70%; left: 33%;" data-title="Les Manuscrits d'Exercices" data-content-id="exercices-content"></div>
-            <div data-action="open-parchment" class="interactive-btn" style="top: 40%; left: 75%;" data-title="Le Codex des Remèdes" data-content-id="codex-content"></div>
-            <div data-action="open-parchment" class="interactive-btn" style="top: 55%; left: 25%;" data-title="Travaux de Guilde" data-content-id="travaux-content"></div>
-        </div>
-        <!-- Boutons Mobile (4 boutons) -->
-        <div id="mobile-buttons-wrapper" class="buttons-wrapper md:hidden absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black via-black/80 to-transparent">
-            <div class="grid grid-cols-2 gap-4">
-                 <button data-action="open-grimoire" class="bg-stone-800/60 border border-amber-500/50 rounded-lg p-2 text-center text-white flex flex-col items-center justify-center h-24">
-                    <span class="text-3xl">📜</span><span class="block text-xs mt-1" style="font-family: 'Cinzel Decorative', cursive;">Grimoire</span>
-                 </button>
-                 <button data-action="open-parchment" class="bg-stone-800/60 border border-amber-500/50 rounded-lg p-2 text-center text-white flex flex-col items-center justify-center h-24" data-title="Les Manuscrits d'Exercices" data-content-id="exercices-content">
-                    <span class="text-3xl">✒️</span><span class="block text-xs mt-1" style="font-family: 'Cinzel Decorative', cursive;">Exercices</span>
-                 </button>
-                 <button data-action="open-parchment" class="bg-stone-800/60 border border-amber-500/50 rounded-lg p-2 text-center text-white flex flex-col items-center justify-center h-24" data-title="Le Codex des Remèdes" data-content-id="codex-content">
-                    <span class="text-3xl">🧪</span><span class="block text-xs mt-1" style="font-family: 'Cinzel Decorative', cursive;">Remèdes</span>
-                 </button>
-                 <button data-action="open-parchment" class="bg-stone-800/60 border border-amber-500/50 rounded-lg p-2 text-center text-white flex flex-col items-center justify-center h-24" data-title="Travaux de Guilde" data-content-id="travaux-content">
-                    <span class="text-3xl">🤝</span><span class="block text-xs mt-1" style="font-family: 'Cinzel Decorative', cursive;">Travaux</span>
-                 </button>
+        <div class="buttons-wrapper">
+            <div id="btn-grimoire" data-action="open-grimoire" class="interactive-btn"> 
+                <span class="btn-title">Grimoire</span> 
+            </div>
+            <div id="btn-exercices" data-action="open-parchment" class="interactive-btn" data-title="Les Manuscrits d'Exercices" data-content-id="exercices-content"> 
+                <img id="syringe" class="floating-element" src="images/syringe.png" alt="Seringue flottante">
+                <span class="btn-title">Exercices</span> 
+            </div>
+            <div id="btn-codex" data-action="open-parchment" class="interactive-btn" data-title="Le Codex des Remèdes" data-content-id="codex-content"> 
+                <img id="codex-element" class="floating-element" src="images/codex.png" alt="Codex flottant">
+                <span class="btn-title">Codex</span> 
+            </div>
+            <div id="btn-travaux" data-action="open-parchment" class="interactive-btn" data-title="Travaux de Guilde" data-content-id="travaux-content"> 
+                <span class="btn-title">Travaux</span> 
+            </div>
+            <div id="btn-lexique" data-action="open-parchment" class="interactive-btn" data-title="Le Décodeur de l'Apprenti" data-content-id="lexique-content"> 
+                <img id="stetho" class="floating-element" src="images/stetho.png" alt="Stéthoscope flottant">
+                <span class="btn-title">Lexique</span> 
             </div>
         </div>
     </div>
@@ -226,8 +305,24 @@
     <div id="welcome-container">
         <div class="parchment-content text-center">
             <h1 class="text-4xl md:text-5xl font-bold text-amber-900 mb-4">Bienvenue, jeune apprenti Paladin!</h1>
-            <p class="text-lg md:text-xl text-stone-700 max-w-2xl">Les portes du royaume sanitaire s'ouvrent à toi.</p>
+            <p class="text-lg md:text-xl text-stone-700 max-w-2xl mt-2">Les portes du royaume sanitaire s'ouvrent à toi. Es-tu prêt pour commencer ton aventure ?</p>
             <button id="enter-btn" class="mt-8 bg-amber-800/20 border border-amber-800 text-amber-900 font-bold py-3 px-8 rounded-lg hover:bg-amber-800/40" style="font-family: 'Cinzel Decorative', cursive;">Entrer</button>
+        </div>
+    </div>
+
+    <div id="vocation-container">
+        <div class="parchment-content">
+            <h1 class="text-3xl md:text-4xl font-bold text-amber-900 mb-4">L'Appel du Paladin</h1>
+            <p class="text-md md:text-lg text-stone-700 max-w-2xl mt-2 mb-4">
+                Écoute l'écho de ta vocation, jeune Apprenti. Tu n'as pas choisi une voie, mais répondu à un appel. Celui de porter la lumière là où l'ombre menace, d'offrir la chaleur là où le froid s'installe.
+                <br><br>
+                Devant toi se dresse une quête de trois années, parsemée d'épreuves qui forgeront ton savoir comme l'acier d'une lame, et d'humanité qui polira ton cœur comme le plus pur des boucliers. La guerre contre les fléaux qui affligent nos semblables est éternelle. La maladie, la douleur, le désespoir... voilà les ténèbres que nous combattons chaque jour.
+                <br><br>
+                Le chemin paraît long, mais un jour tu seras là où nous sommes et tu comprendras que tout passe en un instant. Sois fier de contribuer à cette profession millénaire, et porte son étendard avec le respect qui lui est dû.
+                <br><br>
+                Acceptes-tu de reprendre la relève dans ce combat perpétuel ?
+            </p>
+            <button id="start-battle-btn" class="mt-8 bg-amber-800/20 border border-amber-800 text-amber-900 font-bold py-3 px-8 rounded-lg hover:bg-amber-800/40" style="font-family: 'Cinzel Decorative', cursive;">Que la bataille commence.</button>
         </div>
     </div>
 
@@ -240,7 +335,7 @@
     </div>
     
     <div id="book-container">
-         <button id="close-book-btn">&times;</button>
+           <button id="close-book-btn">&times;</button>
         <div id="book">
             <div id="left-page" class="book-page"><div class="page-content-wrapper"></div></div>
             <div id="right-page" class="book-page"><div class="page-content-wrapper"></div></div>
@@ -251,11 +346,10 @@
         </div>
     </div>
 
-    <!-- Contenus cachés pour les parchemins -->
     <div id="codex-content" class="hidden">
-        <h4 class="text-xl mb-3" style="font-family: 'IM Fell English', serif;">I - L'Art de l'Organisation</h4>
-        <p class="mb-4">Pour maîtriser l'art des remèdes, ton codex doit être un modèle d'ordre. Une potion mal identifiée peut avoir des conséquences désastreuses. Voici une structure éprouvée, inspirée des grands maîtres apothicaires (basée sur le style NCLEX), pour créer tes fiches de remèdes :</p>
-        <ul class="list-disc list-inside space-y-2 mb-4">
+        <h4 class="text-xl mb-3 subtitle-font">I - L'Art de l'Organisation</h4>
+        <p>Pour maîtriser l'art des remèdes, ton codex (fiches thérapeutiques) doit être un modèle d'ordre. Une potion (médicament) mal identifiée peut avoir des conséquences désastreuses. Voici une structure éprouvée, inspirée des grands maîtres apothicaires (basée sur le style NCLEX), pour créer tes fiches de remèdes :</p>
+        <ul class="list-disc list-inside">
             <li><b>DCI / Noms Commerciaux :</b> L'identité véritable et les surnoms du remède.</li>
             <li><b>Classe Pharmaceutique :</b> Sa famille magique.</li>
             <li><b>Voies d’administration :</b> Comment il est délivré (potion, onguent, etc.).</li>
@@ -265,25 +359,25 @@
             <li><b>Indications :</b> Quand l'utiliser.</li>
             <li><b>Contre-Indications :</b> Quand ne JAMAIS l'utiliser.</li>
             <li><b>Effets Indésirables et Surveillance :</b> Les signes à surveiller après administration.</li>
-            <li><b>Fun fact et astuce de collègue :</b> Le petit savoir des anciens qui fait la différence.</li>
+            <li><b>Fun fact ou astuce de collègue :</b> Le petit savoir des anciens qui fait la différence.</li>
         </ul>
-        <p class="mb-4">Pour une classification efficace, suis la méthode ancestrale : commence par le <b>Système Corporel</b> (ex: <i>Flux et Cœur</i> pour le cardiovasculaire), puis la <b>Famille de Maux</b> (ex: <i>Contre la Pression Ardente</i> pour les antihypertenseurs), et enfin la <b>Famille de Remèdes</b> (ex: <i>Potions Aqueuses</i> pour les diurétiques).</p>
-        <h4 class="text-xl mb-3" style="font-family: 'IM Fell English', serif;">II - Le Coffre-fort du Vétéran</h4>
+        <p>Pour une classification efficace, suis la méthode immémoriale : commence par le <b>Système Corporel</b> (ex: <i>Flux et Cœur</i> pour le cardiovasculaire), puis la <b>Famille de Maux</b> (pathologie(s) principal(e) ciblée(s) de la famille thérapeutique, ex: <i>Contre la Pression Ardente</i> pour les antihypertenseurs), et enfin la <b>Famille de Remèdes</b> (famille thérapeutique... ex: <i>Potions Aqueuses</i> pour les diurétiques).</p>
+        <h4 class="text-xl mb-3 subtitle-font">II - Le Coffre-fort du Vétéran</h4>
         <p>Un vétéran a partagé son mini-codex personnel. Étudie-le avec soin, il est accessible dans ce <a href="https://www.googledrive.com" target="_blank">coffre-fort éthéré (Google Drive)</a>.</p>
     </div>
 
     <div id="exercices-content" class="hidden">
-        <h4 class="text-xl mb-3" style="font-family: 'IM Fell English', serif;">I - La Règle de Trois des Apothicaires</h4>
-        <p class="mb-4">La plupart des énigmes de dosage se résolvent par une ancienne magie : le produit en croix. Le principe est simple : si tu connais trois valeurs, tu peux trouver la quatrième. Tu poses le calcul ainsi : "Si j'ai CETTE quantité de remède dans CE volume de liquide, alors pour la quantité de remède que JE VEUX, de quel volume ai-je besoin ?"</p>
+        <h4 class="text-xl mb-3 subtitle-font">I - La Règle de Trois des Apothicaires</h4>
+        <p>La plupart des énigmés de dosage se résolvent par une ancienne magie : le produit en croix. Le principe est simple : si tu connais trois valeurs, tu peux trouver la quatrième. Tu poses le calcul ainsi : "Si j'ai CETTE quantité de remède dans CE volume de liquide, alors pour la quantité de remède que JE VEUX, de quel volume ai-je besoin ?"</p>
         
-        <h4 class="text-xl mb-3" style="font-family: 'IM Fell English', serif;">II - Énigmes d'Application</h4>
-        <p class="mb-2"><b>Énigme 1 : L'Élixir Anti-Miasmes</b></p>
-        <p class="mb-4 p-3 bg-stone-800/10 rounded-md border border-stone-800/20">
-            Tu dois administrer 750mg d'Élixir Anti-Miasmes (Amoxicilline Acide Clavulanique) par injection directe dans les veines de Dame T. Tu disposes de fioles d'Élixir de 1g/200mg, d'une seringue d'apothicaire de 20mL, et d'ampoules d'eau purifiée (sérum physiologique) de 10mL et 20mL.
+        <h4 class="text-xl mb-3 subtitle-font">II - Énigmes d'Application</h4>
+        <p><b>Énigme 1 : L'Élixir Anti-Miasmes (Amoxicilline / Acide Clavulanique)</b></p>
+        <p class="p-3 bg-stone-800/10 rounded-md border border-stone-800/20">
+            Tu dois administrer 750mg d'Élixir Anti-Miasmes par injection directe dans les veines (intraveineuse directe) de Dame T. Tu disposes de fioles d'Élixir de 1g/200mg, d'une seringue d'apothicaire de 20mL, et d'ampoules d'eau purifiée (sérum physiologique) de 10mL et 20mL.
             <br><i>Comment procèdes-tu ?</i>
         </p>
-        <p class="mb-2"><b>Correction de l'Énigme 1</b></p>
-        <p class="mb-4 p-3 bg-stone-800/10 rounded-md border border-stone-800/20">
+        <p><b>Correction de l'Énigme 1</b></p>
+        <p class="p-3 bg-stone-800/10 rounded-md border border-stone-800/20">
             1. Prélève 20mL d'eau purifiée. Dilue la fiole de 1g d'Élixir avec ces 20mL. Tu obtiens donc 1000mg dans 20mL.
             <br>
             2. Règle de Trois : Si 1000mg sont dans 20mL, alors 750mg sont dans X mL.
@@ -293,18 +387,18 @@
             <b>Il faudra donc injecter 15mL de la solution reconstituée.</b>
         </p>
 
-        <p class="mb-2"><b>Énigme 2 : L'Infusion de Potion Poly-ionique</b></p>
-        <p class="mb-4 p-3 bg-stone-800/10 rounded-md border border-stone-800/20">
-            Le maître-soignant prescrit une infusion de Potion Poly-ionique G5% de 2 Litres sur 24h.
+        <p><b>Énigme 2 : L'Infusion de Potion Poly-ionique (Soluté G5%)</b></p>
+        <p class="p-3 bg-stone-800/10 rounded-md border border-stone-800/20">
+            Le maître-soignant (médecin) prescrit une infusion de Potion Poly-ionique G5% de 2 Litres sur 24h.
             <br><i>Quel sera le débit en mL/heure ? Et en gouttes/minute ?</i>
         </p>
-        <p class="mb-2"><b>Correction de l'Énigme 2</b></p>
-        <p class="mb-4 p-3 bg-stone-800/10 rounded-md border border-stone-800/20">
+        <p><b>Correction de l'Énigme 2</b></p>
+        <p class="p-3 bg-stone-800/10 rounded-md border border-stone-800/20">
             1. Débit en mL/heure : 2L = 2000mL.
             <br>
             <i>2000mL / 24h = 83,33 mL/h.</i> (On peut arrondir à 83 ou 84 mL/h).
             <br><br>
-            2. Débit en gouttes/minute : (Sachant que 1ml ≈ 20 gouttes et 1h = 60 minutes)
+            2. Débit en gouttes/minute : (Sachant que 1mL ≈ 20 gouttes et 1h = 60 minutes)
             <br>
             <i>83,33 mL/h × 20 gouttes = 1666,66 gouttes/heure.</i>
             <br>
@@ -312,39 +406,137 @@
             <br>
             <b>Tu dois régler l'infusion à environ 28 gouttes par minute.</b>
         </p>
-        <h4 class="text-xl mb-3" style="font-family: 'IM Fell English', serif;">III - Le Simulateur de Dosage</h4>
+        <h4 class="text-xl mb-3 subtitle-font">III - Le Simulateur de Dosage</h4>
         <p>Pour parfaire ton art, entraîne-toi sur les simulateurs de la guilde des soignants. Tu les trouveras ici : <a href="https://entraide-esi-ide.com/calculs-de-doses/" target="_blank">S'exercer au calcul de dose</a>.</p>
     </div>
     
     <div id="travaux-content" class="hidden">
-        <h4 class="text-xl mb-3" style="font-family: 'IM Fell English', serif;">I - La Forge Collaborative</h4>
-        <p class="mb-4">Le savoir se partage et se construit à plusieurs. Pour les travaux de guilde (travaux de groupe), ton allié le plus puissant est le parchemin partagé. Utilise les <a href="https://docs.google.com/" target="_blank">scriptoriums de Google (Google Docs)</a> pour que chaque apprenti puisse ajouter sa pierre à l'édifice en temps réel.</p>
-        <h4 class="text-xl mb-3" style="font-family: 'IM Fell English', serif;">II - L'Art de l'Enluminure Numérique</h4>
-        <p class="mb-4">Pour présenter tes recherches sous forme d'affiches ou de documents visuels, la guilde des artisans de <a href="https://www.canva.com/" target="_blank">Canva</a> met à ta disposition des outils simples et puissants. Nul besoin d'être un maître enlumineur pour créer des œuvres claires et esthétiques.</p>
-        <h4 class="text-xl mb-3" style="font-family: 'IM Fell English', serif;">III - La Source du Savoir</h4>
-        <p class="mb-4">Toute affirmation doit être appuyée par une source fiable. Lorsque tu trouves une information capitale dans un codex reconnu (sites en .org, .edu, .gouv, ou revues scientifiques), copie immédiatement son sceau (le lien URL) dans ton parchemin partagé. Cela t'évitera des heures de recherche pour retrouver tes sources.</p>
-        <h4 class="text-xl mb-3" style="font-family: 'IM Fell English', serif;">IV - Le Grimoire des Sources</h4>
+        <h4 class="text-xl mb-3 subtitle-font">I - La Forge Collaborative</h4>
+        <p>Le savoir se partage et se construit à plusieurs. Pour les travaux de guilde (travaux de groupe), ton allié le plus puissant est le parchemin partagé. Utilise les <a href="https://docs.google.com/" target="_blank">scriptoriums de Google (Google Docs)</a> pour que chaque apprenti puisse ajouter sa pierre à l'édifice en temps réel.</p>
+        <h4 class="text-xl mb-3 subtitle-font">II - L'Art de l'Enluminure Numérique</h4>
+        <p>Pour présenter tes recherches sous forme d'affiches ou de documents visuels, la guilde des artisans de <a href="https://www.canva.com/" target="_blank">Canva</a> met à ta disposition des outils simples et puissants. Nul besoin d'être un maître enlumineur pour créer des œuvres claires et esthétiques.</p>
+        <h4 class="text-xl mb-3 subtitle-font">III - La Source du Savoir</h4>
+        <p>Toute affirmation doit être appuyée par une source fiable. Lorsque tu trouves une information capitale dans un codex reconnu (sites en .org, .edu, .gouv, ou revues scientifiques), copie immédiatement son sceau (le lien URL) dans ton parchemin partagé. Cela t'évitera des heures de recherche pour retrouver tes sources.</p>
+        <h4 class="text-xl mb-3 subtitle-font">IV - Le Grimoire des Sources</h4>
         <p>Pour ne jamais perdre la trace de tes lectures, utilise <a href="https://www.zotero.org/" target="_blank">Zotero</a>. C'est un puissant grimoire numérique (un logiciel de gestion de références) qui t'aide à collecter, organiser et citer tes sources automatiquement. Un gain de temps inestimable pour tout apprenti sérieux.</p>
     </div>
+    
+   <div id="lexique-content" class="hidden">
+    <h4 class="text-xl mb-3 subtitle-font">I - Les Runes du Savoir Sanitaire (Sigles)</h4>
+    <p>Au début de ta quête, tu seras confronté à un dialecte étrange, rempli de runes mystérieuses (les sigles). Ce décodeur t'aidera à maîtriser le langage du royaume.</p>
+    <ul class="list-none">
+        <li><b>ESI ou EIDE :</b> Étudiant en Soins Infirmiers ou Etudiant Infirmier Diplomé d'Etat. C'est toi !</li>
+        <li><b>IDE :</b> Infirmier Diplômé d'État. Le grade que tu convoites.</li>
+        <li><b>UE :</b> Unité d'Enseignement. Une matière, tout simplement (tu verras, le plus dure sera de s'orienter dans tous les numéros d'U. E.).</li>
+        <li><b>ECTS :</b> European Credit Transfer System. Les points que tu gagnes en validant tes UE (il te faut 180 au total sur ton cursus).</li>
+        <li><b>MFE :</b> Mémoire de Fin d'Études. L'épreuve finale pour devenir un Paladin accompli.</li>
+    </ul>
+    <p><i>Cette liste n'est qu'un début. N'hésite jamais à demander la signification d'une rune inconnue !</i></p>
+    <br>
+    <h4 class="text-xl mb-3 subtitle-font">II - Le Qui est Qui de la Guilde (L'Organigramme du service)</h4>
+    <p>
+        Dans chaque fief (service), tu rencontreras plusieurs membres de la guilde. Comprendre leur rôle est la clé pour une quête réussie et une collaboration efficace.
+    </p>
+    <ul class="list-none">
+        <b>Référent Pédagogique - Le Sage Guide :</b><br>
+            C'est le fomateur qui te suivra tout au long de ta quête sur les trois ans. Il/elle est le pont entre la théorie apprise à l'IFSI et la pratique sur le terrain. C'est vers lui/elle que tu te tourneras pour trouver conseil si des épreuves se dressent sur ton chemin.
+        </li>
+        <li>
+            <b>IDE - Le Paladin :</b><br>
+            C'est ton réfèrent (ou tuteur) de stage et ton principal allié. Il/elle t'enseignera l'art des soins, de la surveillance des patients et de l'organisation. C'est à lui/elle que tu te réfères pour toute question sur tes patients.
+        </li>
+        <li>
+            <b>AS - L'Écuyer :</b><br>
+            L'AS travaille en étroite collaboration avec l'IDE et nous. Il/elle est expert(e) des soins de confort, d'hygiène et aide les patients dans les gestes de la vie quotidienne. Avant de devenir Paladin, tu seras Ecuyer (après l'obtention de ta première année).
+        </li>
+        <li>
+            <b>Cadre de Santé - Le/la Capitaine de la Garde :</b><br>
+            C'est le/la chef d'orchestre du service. Il/elle gère l'équipe, les plannings et s'assure que tout fonctionne harmonieusement. C'est ton maître de stage.
+        </li>
+        <li>
+            <b>Médecin - Le Grand Maître Guérisseur :</b><br>
+            C'est lui/elle qui pose les diagnostics et prescrit les traitements (les potions et remèdes). Tu appliqueras ses prescriptions en collaboration avec l'IDE, jamais seul.
+        </li>
+    </ul>
+    <br>
+    <h4 class="text-xl mb-3 subtitle-font">III - Parchemin des Termes Anciens (Terminologie médicale)</h4>
+    <p>
+        Maîtriser ces quelques runes ancestrales (littéralement car elles viennent du Grecque et Latin) te permettra de déchiffrer les plus grands secrets inscrits dans les dossiers des patients.
+    </p>
+    <ul class="list-none">
+        <li>
+            <b>Préfixes :</b>
+            <ul class="list-disc list-inside">
+                <li><b>A- / An- :</b> Absence de (ex: <b>A</b>phasie = absence de parole).</li>
+                <li><b>Dys- :</b> Difficulté (ex: <b>Dys</b>pnée = difficulté à respirer).</li>
+                <li><b>Hyper- :</b> En excès (ex: <b>Hyper</b>tension = tension trop élevée).</li>
+                <li><b>Hypo- :</b> En manque (ex: <b>Hypo</b>glycémie = manque de sucre dans le sang).</li>
+                <li><b>Poly- :</b> Plusieurs, beaucoup (ex: <b>Poly</b>urique = qui urine beaucoup).</li>
+            </ul>
+        </li>
+        <li>
+            <b>Suffixes (la fin du mot) :</b>
+            <ul class="list-disc list-inside">
+                <li><b>-algie :</b> Douleur (ex: Lombalgie = douleur aux lombaires).</li>
+                <li><b>-ite :</b> Inflammation (ex: Appendic<b>ite</b> = inflammation de l'appendice).</li>
+                <li><b>-urie :</b> Relatif à l'urine (ex: Hémat<b>urie</b> = sang dans les urines).</li>
+                <li><b>-émèse :</b> Vomissement (ex: Hémat<b>émèse</b> = vomissement de sang).</li>
+            </ul>
+        </li>
+    </ul>
+</div>
 
     <script>
         window.addEventListener('load', () => {
+            const STARTING_VOLUME = 0.3;
+            
             const backgroundVideo = document.getElementById('bg-video');
             const welcomeContainer = document.getElementById('welcome-container');
             const enterButton = document.getElementById('enter-btn');
+            const vocationContainer = document.getElementById('vocation-container');
+            const startBattleButton = document.getElementById('start-battle-btn');
             const allButtonsWrappers = document.querySelectorAll('.buttons-wrapper');
             
-            let welcomeShown = false;
-            backgroundVideo.addEventListener('timeupdate', () => {
-                if (backgroundVideo.currentTime > 3.5 && !welcomeShown) {
-                    welcomeContainer.classList.add('visible');
-                    welcomeShown = true;
+            const musicControl = document.getElementById('music-control');
+            const bgMusic = document.getElementById('bg-music');
+            let isMusicPlaying = false;
+    
+            bgMusic.volume = STARTING_VOLUME;
+    
+            musicControl.addEventListener('click', () => {
+                if (isMusicPlaying) {
+                    bgMusic.pause();
+                    musicControl.textContent = '▶️';
+                } else {
+                    bgMusic.play();
+                    musicControl.textContent = '⏸️';
                 }
+                isMusicPlaying = !isMusicPlaying;
             });
-
+    
+            welcomeContainer.classList.add('visible');
+    
             enterButton.addEventListener('click', () => {
                 welcomeContainer.style.opacity = '0';
                 setTimeout(() => welcomeContainer.style.display = 'none', 1000);
+    
+                backgroundVideo.play();
+
+                if (!isMusicPlaying) {
+                    bgMusic.play().catch(e => console.log("L'autoplay a été empêché par le navigateur."));
+                    isMusicPlaying = true;
+                    musicControl.textContent = '⏸️';
+                }
+            });
+    
+            backgroundVideo.addEventListener('ended', () => {
+                backgroundVideo.pause();
+                vocationContainer.classList.add('visible');
+            });
+
+            startBattleButton.addEventListener('click', () => {
+                vocationContainer.style.opacity = '0';
+                setTimeout(() => vocationContainer.style.display = 'none', 1000);
                 allButtonsWrappers.forEach(wrapper => wrapper.classList.add('visible'));
             });
 
@@ -367,7 +559,7 @@
                     }
                 });
             });
-
+    
             const parchmentModal = document.getElementById('parchment-modal');
             const parchmentContent = parchmentModal.querySelector('#parchment-text-content');
             function openParchmentModal(title, content) {
@@ -377,39 +569,43 @@
             }
             parchmentModal.querySelector('.close-btn').addEventListener('click', () => parchmentModal.classList.remove('visible'));
             parchmentModal.addEventListener('click', (e) => { if(e.target === parchmentModal) parchmentModal.classList.remove('visible'); });
-
+    
             const bookContainer = document.getElementById('book-container');
             const closeBookBtn = document.getElementById('close-book-btn');
             const nextPageBtn = document.getElementById('next-page-btn');
             const prevPageBtn = document.getElementById('prev-page-btn');
             const leftPage = document.querySelector('#left-page .page-content-wrapper');
             const rightPage = document.querySelector('#right-page .page-content-wrapper');
-
+    
             const bookPages = [
                 {
                     left: `<div class="text-center flex flex-col items-center justify-center h-full"><h2 class="text-5xl">Le Grimoire</h2><p class="mt-4">Savoirs de Première Année</p></div>`,
-                    right: `<p class="mt-4">Ce mini-grimoire ancestral, écrit par un apprenti Paladin presque au bout de son apprentissage, renferme des conseils qui pourraient t'aider pour ta première année d'apprentissage. Que ta quête soit fructueuse.</p>`
+                    right: `<p class="mt-4">Ce mini-grimoire ancestral, écrit par un apprenti Paladin presque au bout de son apprentissage, renferme des conseils qui pourraient t'aider pour ta première année. Que ta quête soit fructueuse.</p>`
                 },
                 {
-                    left: `<h3 class="text-2xl mb-4 border-b border-stone-400 pb-2">La Réserve de l'Apprenti</h3><h4 class="text-xl mb-3" style="font-family: 'IM Fell English', serif;">I - Forger ton rituel d'étude</h4><p>Un bon apprenti est un apprenti organisé. Prends de bonnes habitudes dès tes premiers jours : ordonne tes parchemins de notes et découvre ton affinité avec le savoir.</p>`,
+                    left: `<h3 class="text-2xl mb-4 border-b border-stone-400 pb-2">La Réserve de l'Apprenti</h3><h4 class="text-xl mb-3 subtitle-font">I - Forger ton rituel d'étude</h4><p>Un bon apprenti est un apprenti organisé. Prends de bonnes habitudes dès tes premiers jours : ordonne tes parchemins de notes et découvre ton affinité avec le savoir.</p>`,
                     right: `<p class="mb-2 mt-10">Certains apprennent par la vue, d'autres par l'ouïe, d'autres encore par le geste (le toucher). Une fois ta voie trouvée, forge ton rituel.</p><ul class="list-disc list-inside mb-4"><li><b>Les Glyphes de Mémorisation (Flashcards) :</b> Grave le savoir sur de petites cartes pour ne jamais l'oublier. Des guildes (sites web) proposent des outils pour t'y aider : <a href="https://quizlet.com/" target="_blank">Quizlet</a>, <a href="https://ankiapp.com/" target="_blank">Anki</a>.</li><li><b>L'Art du Scribe :</b> La manière de transcrire le savoir est cruciale. Consulte les méthodes des grands scribes pour parfaire ton art : <a href="https://www.youtube.com/watch?v=52hZ4oPDb-E" target="_blank">La Méthode Cornell</a>.</li></ul>`
                 },
                 {
-                    left: `<h4 class="text-xl mb-3" style="font-family: 'IM Fell English', serif;">II - Les Sources du Savoir</h4><p class="mb-4">Méfie-toi des grimoires jaunis et des savoirs obsolètes, beaucoup d'apprentis Paladins tombent dans cette embûche en début de cursus. Pas la peine de faire du farming de livres de fiche de cours toutes faîtes car chaque professeur a sa façon de procéder, tu ne trouveras point de fiche qui correspond à 100% à tes cours au Sanctum des Paladins. Néanmoins, si tu veux t'aider, privilégie les sources vives et entretenues par les guildes modernes (sites web actuels). La guilde <a href="https://www.reussistonifsi.fr/" target="_blank">"Réussis ton IFSI"</a> est une source fiable. Mais la  connaissance, la plus pure, est celle que tu distilles toi-même en créant tes propres fiches. </p>`,
-                    right: `<h4 class="text-xl mb-3" style="font-family: 'IM Fell English', serif;">III - Préparer tes Missions</h4><p>Lors de tes missions sur le terrain (stages), ton équipement est vital. N'oublie jamais :</p><ul class="list-disc list-inside"><li>Une plume quadricolore (stylo), un carnet de poche, une cisaille de soignant (ciseaux style "Gesco").</li><li>Le plus important : présente-toi à tous les membres de la guilde (l'équipe), encore et toujours. Ta réputation se forge dès les premiers instants.</li><li>Enfin, forge ta propre opinion. N'écoute pas les rumeurs de taverne sur les maîtres de stage ; vis ta propre aventure.</li></ul>`
+                    left: `<h4 class="text-xl mb-3 subtitle-font">II - Les Sources du Savoir</h4><p class="mb-4">Méfie-toi des grimoires jaunis et des savoirs obsolètes, beaucoup d'apprentis Paladins tombent dans cette embûche en début de cursus. Pas la peine de faire du "farming" de livres de fiches toutes faîtes car chaque professeur a sa façon de procéder, tu ne trouveras point de fiche qui correspond à 100% à tes cours au Sanctum des Paladins (l'IFSI). Néanmoins, si tu veux t'aider, privilégie les sources vives et entretenues par les guildes modernes (sites web actuels). La guilde <a href="https://www.reussistonifsi.fr/" target="_blank">"Réussis ton IFSI"</a> est une source fiable. Mais la connaissance la plus pure est celle que tu distilles toi-même en créant tes propres fiches.</p>`,
+                    right: `<h4 class="text-xl mb-3 subtitle-font">III - Préparer tes Missions (Stages)</h4><p>Lors de tes missions sur le terrain, ton équipement est vital. N'oublie jamais :</p><ul class="list-disc list-inside"><li>Une plume quadricolore (stylo), un carnet de poche, une cisaille de soignant (ciseaux style "Gesco").</li><li>Le plus important : présente-toi à tous les membres de la guilde (l'équipe), encore et toujours. Ta réputation se forge dès les premiers instants.</li><li>Enfin, forge ta propre opinion. N'écoute pas les rumeurs de taverne sur les maîtres de stage ; vis ta propre aventure.</li></ul>`
                 },
                 {
-                    left: `<h4 class="text-xl mb-3" style="font-family: 'IM Fell English', serif;">IV - L'Art du Diagnostic</h4><p class="mb-4">Un Paladin ne guérit pas au hasard. Tes jugements (diagnostics infirmiers) ne doivent pas sortir de ton imagination. Ils sont le fruit d'une analyse rigoureuse et s'appuient sur un savoir ancestral, codifié par des guildes d'experts.</p><p>Ces diagnostics officiels te donnent un langage commun et une structure pour identifier précisément les maux de tes patients.</p>`,
-                    right: `<p class="mt-10 mb-4">La guilde la plus reconnue en ce domaine est la <a href="https://diagnosticsinfirmiers.com/" target="_blank">NANDA International</a>. Leur grimoire (leur site web) est une référence absolue que tu dois consulter pour formuler tes diagnostics avec justesse et précision.</p><p>Maîtriser ce codex te permettra d'élaborer des plans de soins (plans de guérison) cohérents et efficaces.</p>`
+                    left: `<h4 class="text-xl mb-3 subtitle-font">IV - L'Art du Diagnostic</h4><p class="mb-4">Un Paladin ne guérit pas au hasard. Tes jugements (diagnostics infirmiers) ne doivent pas sortir de ton imagination. Ils sont le fruit d'une analyse rigoureuse et s'appuient sur un savoir ancestral, codifié par des guildes d'experts.</p><p>Ces diagnostics officiels te donnent un langage commun et une structure pour identifier précisément les maux de tes patients.</p>`,
+                    right: `<p class="mt-10 mb-4">La guilde la most reconnue en ce domaine est la <a href="https://diagnosticsinfirmiers.com/" target="_blank">NANDA International</a>. Leur grimoire (leur site web) est une référence absolue que tu dois consulter pour formuler tes diagnostics avec justesse et précision.</p><p>Maîtriser ce codex te permettra d'élaborer des plans de soins (plans de guérison) cohérents et efficaces.</p>`
+                },
+                {
+                    left: `<h3 class="text-2xl mb-4 border-b border-stone-400 pb-2">La Guilde des Anciens</h3><p>Ce grimoire a été forgé pour toi par tes aînés de Troisième Année. Nous sommes passés par là, et nous savons que le chemin peut parfois sembler ardu.</p>`,
+                    right: `<p class="mt-10 mb-4">N'oublie jamais que tu n'es pas seul dans cette quête. L'entraide est la plus grande force d'un Paladin. Nous te souhaitons un apprentissage rempli de découvertes et de succès.</p><p class="mt-4 font-bold text-center">— La Promo [Ton Année de Promo]</p>`
                 }
             ];
             let currentPageIndex = 0;
-
+    
             function updateBookPages(direction = 'none') {
-                 const contentToFlip = [leftPage, rightPage];
-                 contentToFlip.forEach(c => c.classList.add('flipping'));
+                const contentToFlip = [leftPage, rightPage];
+                contentToFlip.forEach(c => c.classList.add('flipping'));
                 
-                 setTimeout(() => {
+                setTimeout(() => {
                     const pageData = bookPages[currentPageIndex];
                     leftPage.innerHTML = pageData.left;
                     rightPage.innerHTML = pageData.right;
@@ -420,37 +616,56 @@
                     contentToFlip.forEach(c => c.classList.remove('flipping'));
                 }, 300);
             }
-
+    
             function openGrimoire() {
                 currentPageIndex = 0;
                 updateBookPages();
                 bookContainer.classList.add('visible');
                 allButtonsWrappers.forEach(w => w.classList.remove('visible'));
             }
-
+    
             function closeGrimoire() {
                 bookContainer.classList.remove('visible');
                 allButtonsWrappers.forEach(w => w.classList.add('visible'));
             }
-
+    
             nextPageBtn.addEventListener('click', () => {
                 if (currentPageIndex < bookPages.length - 1) {
                     currentPageIndex++;
                     updateBookPages('next');
                 }
             });
-
+    
             prevPageBtn.addEventListener('click', () => {
                 if (currentPageIndex > 0) {
                     currentPageIndex--;
                     updateBookPages('prev');
                 }
             });
-
+    
             closeBookBtn.addEventListener('click', closeGrimoire);
         });
+
+        (function() {
+            const els = document.querySelectorAll('.parchment-content, .book-page');
+            let hideTimer = null;
+            const REVEAL_MS = 1500;
+            function reveal() {
+                document.body.classList.add('show-scrollbars');
+                clearTimeout(hideTimer);
+                hideTimer = setTimeout(() => document.body.classList.remove('show-scrollbars'), REVEAL_MS);
+            }
+            els.forEach(el => {
+                el.addEventListener('scroll', reveal, { passive: true });
+                el.addEventListener('wheel', reveal, { passive: true });
+                el.addEventListener('touchstart', reveal, { passive: true });
+                el.addEventListener('pointerdown', reveal);
+            });
+            document.addEventListener('focusin', (e) => {
+                if (e.target.closest && e.target.closest('.parchment-content, .book-page')) reveal();
+            });
+        })();
     </script>
 
 </body>
 </html>
-
