@@ -21,27 +21,6 @@
             --codex-element-size: 40vw;
         }
 
-        @media (max-width: 768px) {
-            :root {
-                --btn-grimoire-x: 14vw;      --btn-grimoire-y: 55vh;
-                --btn-exercices-x: 9vw;      --btn-exercices-y: 15vh;
-                --btn-codex-x: -35vw;        --btn-codex-y: -5vh;
-                --btn-travaux-x: -30vw;      --btn-travaux-y: 23vh;
-                --btn-lexique-x: -19vw;      --btn-lexique-y: -4vh;
-
-                --syringe-size: 50vw;
-                --stetho-size: 50vw;
-                --codex-element-size: 50vw;
-            }
-
-            .interactive-btn {
-                width: 30vw;
-                height: 30vw;
-                max-width: 100px;
-                max-height: 100px;
-            }
-        }
-
         body {
             font-family: 'Lora', serif;
             background-color: #000;
@@ -256,8 +235,52 @@
             border-radius: 10px;
             border: 3px solid #e4d8c5;
         }
+        
+        #music-control { 
+            position: fixed; 
+            bottom: calc(20px + env(safe-area-inset-bottom)); 
+            right: calc(20px + env(safe-area-inset-right)); 
+            z-index: 100; 
+            width: 50px; 
+            height: 50px; 
+            background-color: rgba(0,0,0,0.5); 
+            color: white; 
+            border: 1px solid white; 
+            border-radius: 50%; 
+            cursor: pointer; 
+            font-size: 24px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            opacity: 0.5; 
+            transition: opacity 0.3s; 
+        }
+        #music-control:hover { 
+            opacity: 1; 
+        }
 
         @media (max-width: 768px) {
+            :root {
+                --btn-grimoire-x: 14vw;
+                --btn-grimoire-y: 55vh;
+                --btn-exercices-x: 9vw;
+                --btn-exercices-y: 15vh;
+                --btn-codex-x: -35vw;
+                --btn-codex-y: -5vh;
+                --btn-travaux-x: -30vw;
+                --btn-travaux-y: 23vh;
+                --btn-lexique-x: -19vw;
+                --btn-lexique-y: -4vh;
+                --syringe-size: 50vw;
+                --stetho-size: 50vw;
+                --codex-element-size: 50vw;
+            }
+            .interactive-btn {
+                width: 30vw;
+                height: 30vw;
+                max-width: 100px;
+                max-height: 100px;
+            }
             .parchment-content { padding: 40px 10px; }
             #book { width: 100%; height: 100%; border-radius: 0; padding: 60px 10px 20px; box-sizing: border-box; flex-direction: column; overflow-y: auto; justify-content: flex-start; }
             #book::before { display: none; }
@@ -597,8 +620,7 @@
                 {
                     left: `<h3 class="text-2xl mb-4 border-b border-stone-400 pb-2">La Guilde des Anciens</h3><p>Ce grimoire a été forgé pour toi par tes aînés de Troisième Année. Nous sommes passés par là, et nous savons que le chemin peut parfois sembler ardu.</p>`,
                     right: `<p class="mt-10 mb-4">Quand tu te sens aculé, saches que tu peux trouver sanctuaire chez tes confrères. Eux aussi seront à l'affût d'une oreille réceptive. Un Paladin ne peut faire un raid de dangeon seul, l'entraide est votre force. Nous te souhaitons un apprentissage rempli de découvertes et de succès.</p><p class="mt-4 font-bold text-center">"La nuit approche, et maintenant ma garde commence. Elle ne se terminera qu'à ma mort [...] je ne porterais nulle couronne et ne gagnerais point de gloire." - Night's Watch, GoT. 😉 </p></p><p class="mt-4 font-bold text-center">— La Promo 23-26</p>`
-                },
-                
+                }
             ];
             let currentPageIndex = 0;
     
@@ -670,6 +692,4 @@
 
 </body>
 </html>
-
-
 
