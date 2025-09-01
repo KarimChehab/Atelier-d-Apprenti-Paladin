@@ -11,10 +11,10 @@
     <style>
         :root {
             --btn-grimoire-x: 5vw;      --btn-grimoire-y: 79vh;
-            --btn-exercices-x: 2vw;   --btn-exercices-y: 15vh;
+            --btn-exercices-x: 2vw;     --btn-exercices-y: 15vh;
             --btn-codex-x: 20vw;        --btn-codex-y: 10vh;
             --btn-travaux-x: -15vw;     --btn-travaux-y: 29vh;
-            --btn-lexique-x: -30vw;    --btn-lexique-y: -26vh;
+            --btn-lexique-x: -30vw;     --btn-lexique-y: -26vh;
             
             --syringe-size: 40vw;
             --stetho-size: 40vw;
@@ -219,30 +219,56 @@
         .book-nav-btn:hover:not(:disabled) { transform: scale(1.2); } .book-nav-btn:disabled { opacity: 0.2; cursor: not-allowed; }
         #close-book-btn { position: fixed; top: calc(15px + env(safe-area-inset-top)); right: calc(15px + env(safe-area-inset-right)); background: #4A2E1A; color: #FDF3D9; width: 40px; height: 40px; border-radius: 50%; border: 3px solid #FDF3D9; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 70; }
         
+        /* --- START: SCROLLBAR REPLACEMENT --- */
         .parchment-content, .book-page {
-            scrollbar-width: none;
-            -ms-overflow-style: none;
+            /* Hide native scrollbars but keep element scrollable */
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE 10+ */
+            position: relative; /* Needed for indicator positioning */
         }
-        .parchment-content::-webkit-scrollbar, .book-page::-webkit-scrollbar {
-            width: 0;
-            height: 0;
+        .parchment-content::-webkit-scrollbar,
+        .book-page::-webkit-scrollbar {
+            display: none; /* Hide for WebKit browsers */
         }
-        body.show-scrollbars .parchment-content,
-        body.show-scrollbars .book-page {
-            scrollbar-width: thin;
+
+        .scroll-arrow {
+            position: sticky;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            pointer-events: none;
+            z-index: 15;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+            animation: bounce 2s infinite ease-in-out;
         }
-        body.show-scrollbars .parchment-content::-webkit-scrollbar,
-        body.show-scrollbars .book-page::-webkit-scrollbar {
-            width: 12px;
-            height: 12px;
-        }
-        body.show-scrollbars .parchment-content::-webkit-scrollbar-thumb,
-        body.show-scrollbars .book-page::-webkit-scrollbar-thumb {
-            background-color: #5c4b3a;
-            border-radius: 10px;
-            border: 3px solid #e4d8c5;
+
+        .scroll-arrow.visible {
+            opacity: 1;
         }
         
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+
+        .scroll-arrow svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
+        }
+        /* --- END: SCROLLBAR REPLACEMENT --- */
+
         #music-control { 
             position: fixed; 
             bottom: calc(20px + env(safe-area-inset-bottom)); 
@@ -346,7 +372,7 @@
             <p class="text-md md:text-lg text-stone-700 max-w-2xl mt-2 mb-4">
                 Écoute l'écho de ta vocation, jeune Apprenti. Tu n'as pas choisi une voie, mais répondu à un appel. Celui de porter la lumière là où l'ombre menace, d'offrir la chaleur là où le froid s'installe.
                 <br><br>
-                Devant toi se dresse une quête de trois années, parsemée d'épreuves qui forgeront ton savoir comme l'acier d'une lame, et d'humanité qui polira ton cœur comme le plus pur des boucliers. La guerre contre les fléaux qui affligent nos semblables est éternelle. La maladie, la douleur... voilà les ténèbres que nous combattons chaque jour pour protèger nos patients.
+                Devant toi se dresse une quête de trois années, parsemée d'épreuves qui forgeront ton savoir comme l'acier d'une lame, et d'humanité qui polira ton cœur comme le plus pur des boucliers. La guerre contre les fléaux qui affligent nos semblables est éternelle. La maladie, la douleur, le désespoir... voilà les ténèbres que nous combattons chaque jour.
                 <br><br>
                 Le chemin paraît long, mais un jour tu seras là où nous sommes et tu comprendras que tout passe en un instant. Sois fier de contribuer à cette profession millénaire, et porte son étendard avec le respect qui lui est dû.
                 <br><br>
@@ -361,14 +387,27 @@
             <button class="close-btn">&times;</button>
             <h2 id="parchment-title" class="text-3xl mb-4"></h2>
             <div id="parchment-text-content"></div>
+            <div class="scroll-arrow">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.2,16.5l-5-5a1,1,0,0,1,1.4-1.4L12,14.3l4.4-4.2a1,1,0,1,1,1.4,1.4l-5,5A1,1,0,0,1,11.2,16.5Z" style="fill:#4a2e1a"/></svg>
+            </div>
         </div>
     </div>
     
     <div id="book-container">
            <button id="close-book-btn">&times;</button>
         <div id="book">
-            <div id="left-page" class="book-page"><div class="page-content-wrapper"></div></div>
-            <div id="right-page" class="book-page"><div class="page-content-wrapper"></div></div>
+            <div id="left-page" class="book-page">
+                <div class="page-content-wrapper"></div>
+                <div class="scroll-arrow">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.2,16.5l-5-5a1,1,0,0,1,1.4-1.4L12,14.3l4.4-4.2a1,1,0,1,1,1.4,1.4l-5,5A1,1,0,0,1,11.2,16.5Z" style="fill:#5c4b3a"/></svg>
+                </div>
+            </div>
+            <div id="right-page" class="book-page">
+                <div class="page-content-wrapper"></div>
+                <div class="scroll-arrow">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.2,16.5l-5-5a1,1,0,0,1,1.4-1.4L12,14.3l4.4-4.2a1,1,0,1,1,1.4,1.4l-5,5A1,1,0,0,1,11.2,16.5Z" style="fill:#5c4b3a"/></svg>
+                </div>
+            </div>
             <div id="book-nav">
                 <button id="prev-page-btn" class="book-nav-btn">‹</button>
                 <button id="next-page-btn" class="book-nav-btn">›</button>
@@ -452,68 +491,68 @@
     </div>
     
    <div id="lexique-content" class="hidden">
-    <h4 class="text-xl mb-3 subtitle-font">I - Les Runes du Savoir Sanitaire (Sigles)</h4>
-    <p>Au début de ta quête, tu seras confronté à un dialecte étrange, rempli de runes mystérieuses (les sigles). Ce décodeur t'aidera à maîtriser le langage du royaume.</p>
-    <ul class="list-none">
-        <li><b>ESI ou EIDE :</b> Étudiant en Soins Infirmiers ou Etudiant Infirmier Diplomé d'Etat. C'est toi !</li>
-        <li><b>IDE :</b> Infirmier Diplômé d'État. Le grade que tu convoites.</li>
-        <li><b>UE :</b> Unité d'Enseignement. Une matière, tout simplement (tu verras, le plus dure sera de s'orienter dans tous les numéros d'U. E.).</li>
-        <li><b>ECTS :</b> European Credit Transfer System. Les points que tu gagnes en validant tes UE (il te faut 180 au total sur ton cursus).</li>
-        <li><b>MFE :</b> Mémoire de Fin d'Études. L'épreuve finale pour devenir un Paladin accompli.</li>
-    </ul>
-    <p><i>Cette liste n'est qu'un début. N'hésite jamais à demander la signification d'une rune inconnue !</i></p>
-    <br>
-    <h4 class="text-xl mb-3 subtitle-font">II - Le Qui est Qui de la Guilde (L'Organigramme du service)</h4>
-    <p>
-        Dans chaque fief (service), tu rencontreras plusieurs membres de la guilde. Comprendre leur rôle est la clé pour une quête réussie et une collaboration efficace.
-    </p>
-    <ul class="list-none">
-        <b>Référent Pédagogique - Le Sage Guide :</b><br>
-            C'est le fomateur qui te suivra tout au long de ta quête sur les trois ans. Il/elle est le pont entre la théorie apprise à l'IFSI et la pratique sur le terrain. C'est vers lui/elle que tu te tourneras pour trouver conseil si des épreuves se dressent sur ton chemin.
-        </li>
-        <li>
-            <b>IDE - Le Paladin :</b><br>
-            C'est ton réfèrent (ou tuteur) de stage et ton principal allié. Il/elle t'enseignera l'art des soins, de la surveillance des patients et de l'organisation. C'est à lui/elle que tu te réfères pour toute question sur tes patients.
-        </li>
-        <li>
-            <b>AS - L'Écuyer :</b><br>
-            L'AS travaille en étroite collaboration avec l'IDE et nous. Il/elle est expert(e) des soins de confort, d'hygiène et aide les patients dans les gestes de la vie quotidienne. Avant de devenir Paladin, tu seras Ecuyer (après l'obtention de ta première année).
-        </li>
-        <li>
-            <b>Cadre de Santé - Le/la Capitaine de la Garde :</b><br>
-            C'est le/la chef d'orchestre du service. Il/elle gère l'équipe, les plannings et s'assure que tout fonctionne harmonieusement. C'est ton maître de stage.
-        </li>
-        <li>
-            <b>Médecin - Le Grand Maître Guérisseur :</b><br>
-            C'est lui/elle qui pose les diagnostics et prescrit les traitements (les potions et remèdes). Tu appliqueras ses prescriptions en collaboration avec l'IDE, jamais seul.
-        </li>
-    </ul>
-    <br>
-    <h4 class="text-xl mb-3 subtitle-font">III - Parchemin des Termes Anciens (Terminologie médicale)</h4>
-    <p>
-        Maîtriser ces quelques runes ancestrales (littéralement car elles viennent du Grecque et Latin) te permettra de déchiffrer les plus grands secrets inscrits dans les dossiers des patients.
-    </p>
-    <ul class="list-none">
-        <li>
-            <b>Préfixes :</b>
-            <ul class="list-disc list-inside">
-                <li><b>A- / An- :</b> Absence de (ex: <b>A</b>phasie = absence de parole).</li>
-                <li><b>Dys- :</b> Difficulté (ex: <b>Dys</b>pnée = difficulté à respirer).</li>
-                <li><b>Hyper- :</b> En excès (ex: <b>Hyper</b>tension = tension trop élevée).</li>
-                <li><b>Hypo- :</b> En manque (ex: <b>Hypo</b>glycémie = manque de sucre dans le sang).</li>
-                <li><b>Poly- :</b> Plusieurs, beaucoup (ex: <b>Poly</b>urique = qui urine beaucoup).</li>
-            </ul>
-        </li>
-        <li>
-            <b>Suffixes (la fin du mot) :</b>
-            <ul class="list-disc list-inside">
-                <li><b>-algie :</b> Douleur (ex: Lombalgie = douleur aux lombaires).</li>
-                <li><b>-ite :</b> Inflammation (ex: Appendic<b>ite</b> = inflammation de l'appendice).</li>
-                <li><b>-urie :</b> Relatif à l'urine (ex: Hémat<b>urie</b> = sang dans les urines).</li>
-                <li><b>-émèse :</b> Vomissement (ex: Hémat<b>émèse</b> = vomissement de sang).</li>
-            </ul>
-        </li>
-    </ul>
+     <h4 class="text-xl mb-3 subtitle-font">I - Les Runes du Savoir Sanitaire (Sigles)</h4>
+     <p>Au début de ta quête, tu seras confronté à un dialecte étrange, rempli de runes mystérieuses (les sigles). Ce décodeur t'aidera à maîtriser le langage du royaume.</p>
+     <ul class="list-none">
+         <li><b>ESI ou EIDE :</b> Étudiant en Soins Infirmiers ou Etudiant Infirmier Diplomé d'Etat. C'est toi !</li>
+         <li><b>IDE :</b> Infirmier Diplômé d'État. Le grade que tu convoites.</li>
+         <li><b>UE :</b> Unité d'Enseignement. Une matière, tout simplement (tu verras, le plus dure sera de s'orienter dans tous les numéros d'U. E.).</li>
+         <li><b>ECTS :</b> European Credit Transfer System. Les points que tu gagnes en validant tes UE (il te faut 180 au total sur ton cursus).</li>
+         <li><b>MFE :</b> Mémoire de Fin d'Études. L'épreuve finale pour devenir un Paladin accompli.</li>
+     </ul>
+     <p><i>Cette liste n'est qu'un début. N'hésite jamais à demander la signification d'une rune inconnue !</i></p>
+     <br>
+     <h4 class="text-xl mb-3 subtitle-font">II - Le Qui est Qui de la Guilde (L'Organigramme du service)</h4>
+     <p>
+         Dans chaque fief (service), tu rencontreras plusieurs membres de la guilde. Comprendre leur rôle est la clé pour une quête réussie et une collaboration efficace.
+     </p>
+     <ul class="list-none">
+         <b>Référent Pédagogique - Le Sage Guide :</b><br>
+             C'est le fomateur qui te suivra tout au long de ta quête sur les trois ans. Il/elle est le pont entre la théorie apprise à l'IFSI et la pratique sur le terrain. C'est vers lui/elle que tu te tourneras pour trouver conseil si des épreuves se dressent sur ton chemin.
+         </li>
+         <li>
+             <b>IDE - Le Paladin :</b><br>
+             C'est ton réfèrent (ou tuteur) de stage et ton principal allié. Il/elle t'enseignera l'art des soins, de la surveillance des patients et de l'organisation. C'est à lui/elle que tu te réfères pour toute question sur tes patients.
+         </li>
+         <li>
+             <b>AS - L'Écuyer :</b><br>
+             L'AS travaille en étroite collaboration avec l'IDE et nous. Il/elle est expert(e) des soins de confort, d'hygiène et aide les patients dans les gestes de la vie quotidienne. Avant de devenir Paladin, tu seras Ecuyer (après l'obtention de ta première année).
+         </li>
+         <li>
+             <b>Cadre de Santé - Le/la Capitaine de la Garde :</b><br>
+             C'est le/la chef d'orchestre du service. Il/elle gère l'équipe, les plannings et s'assure que tout fonctionne harmonieusement. C'est ton maître de stage.
+         </li>
+         <li>
+             <b>Médecin - Le Grand Maître Guérisseur :</b><br>
+             C'est lui/elle qui pose les diagnostics et prescrit les traitements (les potions et remèdes). Tu appliqueras ses prescriptions en collaboration avec l'IDE, jamais seul.
+         </li>
+     </ul>
+     <br>
+     <h4 class="text-xl mb-3 subtitle-font">III - Parchemin des Termes Anciens (Terminologie médicale)</h4>
+     <p>
+         Maîtriser ces quelques runes ancestrales (littéralement car elles viennent du Grecque et Latin) te permettra de déchiffrer les plus grands secrets inscrits dans les dossiers des patients.
+     </p>
+     <ul class="list-none">
+         <li>
+             <b>Préfixes :</b>
+             <ul class="list-disc list-inside">
+                 <li><b>A- / An- :</b> Absence de (ex: <b>A</b>phasie = absence de parole).</li>
+                 <li><b>Dys- :</b> Difficulté (ex: <b>Dys</b>pnée = difficulté à respirer).</li>
+                 <li><b>Hyper- :</b> En excès (ex: <b>Hyper</b>tension = tension trop élevée).</li>
+                 <li><b>Hypo- :</b> En manque (ex: <b>Hypo</b>glycémie = manque de sucre dans le sang).</li>
+                 <li><b>Poly- :</b> Plusieurs, beaucoup (ex: <b>Poly</b>urique = qui urine beaucoup).</li>
+             </ul>
+         </li>
+         <li>
+             <b>Suffixes (la fin du mot) :</b>
+             <ul class="list-disc list-inside">
+                 <li><b>-algie :</b> Douleur (ex: Lombalgie = douleur aux lombaires).</li>
+                 <li><b>-ite :</b> Inflammation (ex: Appendic<b>ite</b> = inflammation de l'appendice).</li>
+                 <li><b>-urie :</b> Relatif à l'urine (ex: Hémat<b>urie</b> = sang dans les urines).</li>
+                 <li><b>-émèse :</b> Vomissement (ex: Hémat<b>émèse</b> = vomissement de sang).</li>
+             </ul>
+         </li>
+     </ul>
 </div>
 
     <script>
@@ -592,10 +631,14 @@
     
             const parchmentModal = document.getElementById('parchment-modal');
             const parchmentContent = parchmentModal.querySelector('#parchment-text-content');
+            const parchmentContainer = parchmentModal.querySelector('.parchment-content');
+
             function openParchmentModal(title, content) {
                 parchmentModal.querySelector('#parchment-title').textContent = title;
                 parchmentContent.innerHTML = content;
                 parchmentModal.classList.add('visible');
+                // Check scroll visibility after content is loaded
+                setTimeout(() => checkScroll(parchmentContainer), 10); 
             }
             parchmentModal.querySelector('.close-btn').addEventListener('click', () => parchmentModal.classList.remove('visible'));
             parchmentModal.addEventListener('click', (e) => { if(e.target === parchmentModal) parchmentModal.classList.remove('visible'); });
@@ -606,6 +649,8 @@
             const prevPageBtn = document.getElementById('prev-page-btn');
             const leftPage = document.querySelector('#left-page .page-content-wrapper');
             const rightPage = document.querySelector('#right-page .page-content-wrapper');
+            const leftPageContainer = document.getElementById('left-page');
+            const rightPageContainer = document.getElementById('right-page');
     
             const bookPages = [
                 {
@@ -644,6 +689,11 @@
                     nextPageBtn.disabled = (currentPageIndex >= bookPages.length - 1);
                     
                     contentToFlip.forEach(c => c.classList.remove('flipping'));
+
+                    // Check scroll arrows after content changes
+                    checkScroll(leftPageContainer);
+                    checkScroll(rightPageContainer);
+
                 }, 300);
             }
     
@@ -674,29 +724,30 @@
             });
     
             closeBookBtn.addEventListener('click', closeGrimoire);
-        });
 
-        (function() {
-            const els = document.querySelectorAll('.parchment-content, .book-page');
-            let hideTimer = null;
-            const REVEAL_MS = 1500;
-            function reveal() {
-                document.body.classList.add('show-scrollbars');
-                clearTimeout(hideTimer);
-                hideTimer = setTimeout(() => document.body.classList.remove('show-scrollbars'), REVEAL_MS);
+            // --- START: SCROLL ARROW LOGIC ---
+            function checkScroll(element) {
+                const arrow = element.querySelector('.scroll-arrow');
+                if (!arrow) return;
+
+                const hasOverflow = element.scrollHeight > element.clientHeight;
+                const isAtBottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 5; // +5px buffer
+
+                if (hasOverflow && !isAtBottom) {
+                    arrow.classList.add('visible');
+                } else {
+                    arrow.classList.remove('visible');
+                }
             }
-            els.forEach(el => {
-                el.addEventListener('scroll', reveal, { passive: true });
-                el.addEventListener('wheel', reveal, { passive: true });
-                el.addEventListener('touchstart', reveal, { passive: true });
-                el.addEventListener('pointerdown', reveal);
+            
+            // Add scroll listeners to all relevant containers
+            const scrollableElements = document.querySelectorAll('.parchment-content, .book-page');
+            scrollableElements.forEach(element => {
+                element.addEventListener('scroll', () => checkScroll(element), { passive: true });
             });
-            document.addEventListener('focusin', (e) => {
-                if (e.target.closest && e.target.closest('.parchment-content, .book-page')) reveal();
-            });
-        })();
+            // --- END: SCROLL ARROW LOGIC ---
+        });
     </script>
 
 </body>
 </html>
-
