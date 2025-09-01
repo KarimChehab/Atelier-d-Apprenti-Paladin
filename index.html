@@ -10,11 +10,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=IM+Fell+English&family=Lora&display=swap" rel="stylesheet">
     <style>
         :root {
-            --btn-grimoire-x: 5vw;      --btn-grimoire-y: 65vh;
+            --btn-grimoire-x: 5vw;      --btn-grimoire-y: 79vh;
             --btn-exercices-x: 2vw;   --btn-exercices-y: 15vh;
             --btn-codex-x: 20vw;        --btn-codex-y: 10vh;
-            --btn-travaux-x: -15vw;     --btn-travaux-y: 10vh;
-            --btn-lexique-x: -5vw;    --btn-lexique-y: -10vh;
+            --btn-travaux-x: -15vw;     --btn-travaux-y: 29vh;
+            --btn-lexique-x: -30vw;    --btn-lexique-y: -26vh;
             
             --syringe-size: 40vw;
             --stetho-size: 40vw;
@@ -51,7 +51,14 @@
             object-fit: cover;
             z-index: 10;
         }
-
+        
+        /* Move video a bit higher on desktop */
+        @media (min-width: 769px) {
+            #bg-video {
+                top: 60%; /* decrease this value to move it higher (e.g. 40% for more) */
+            }
+        }
+        
         #apothecary-container {
             position: fixed; top: 0; left: 0;
             width: 100%; height: 100vh; z-index: 20;
@@ -386,7 +393,7 @@
         </ul>
         <p>Pour une classification efficace de tes fiches remèdes, nous te conseillons de suivre la méthode immémoriale : commence par le <b>Système Corporel</b> (ex: <i>Flux et Cœur</i> pour le cardiovasculaire), puis la <b>Famille de Maux</b> (pathologie(s) principal(e) ciblée(s) de la famille thérapeutique, ex: <i>Contre la Pression Ardente</i> pour les antihypertenseurs), et enfin la <b>Famille de Remèdes</b> (famille thérapeutique... ex: <i>Potions Aqueuses</i> pour les diurétiques).</p>
         <h4 class="text-xl mb-3 subtitle-font">II - Le Coffre-fort du Vétéran</h4>
-        <p>Un vétéran a partagé son mini-codex personnel (les remèdes ne sont pas exhaustifs, il s'agit d'une petite liste de potions seulement). Puisse-t-il te servir sur les sentiers bâtus de l'hopital, il est accessible dans ce <a href="https://drive.google.com/drive/folders/1pfg7c6l6mjNwANEPFrJrvly6pbB9hI1j?usp=drive_link" target="_blank">coffre-fort éthéré (Google Drive)</a>.</p>
+        <p>Un vétéran a partagé son mini-codex personnel (les remèdes ne sont pas exhaustifs, il s'agit d'une petite liste de potions seulement). Puisse-t-il te servir sur les sentiers bâtus de l'hopital, il est accessible dans ce <a href="https://www.googledrive.com" target="_blank">coffre-fort éthéré (Google Drive)</a>.</p>
     </div>
 
     <div id="exercices-content" class="hidden">
@@ -692,5 +699,4 @@
 
 </body>
 </html>
-
 
